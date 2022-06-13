@@ -1,0 +1,54 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - master
+
+schedules:
+- cron: "13 15 * * *"
+  displayName: Daily scheduled build
+  branches:
+    include:
+    - master
+  always: true
+
+variables: 
+  tag_name: '$(Build.SourceBranchName)'
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: UseRubyVersion@0
+  inputs:
+    versionSpec: '= 2.7'
+    addToPath: true
+  
+- script: |
+   CALL gem install bundler
+   bundle install --retry=3 --jobs=4
+  displayName: 'bundle install dependencies'
+
+- script: bundle install
+  displayName: 'Bundle install'
+
+- script: bundle exec cucumber --tags @smoke-test
+  continueOnError: true
+  displayName: 'Run demo testcases'
+
+
+# - script: bundle exec cucumber --tag @login_client
+#   displayName: 'Run cucumber tests'
+  
+# - script: bundle exec cucumber --tag @$(tag_name)
+#   displayName: 'Run cucumber tests for specific branch'
+
+
+- task: PublishCucumberReport@1
+  inputs:
+    jsonDir: './results'
+    outputPath: './results'
+    theme: 'bootstrap'
+    reportSuiteAsScenarios: true

@@ -1,0 +1,8 @@
+#Publish result in json format by default without publish message
+default: --publish-quiet --no-source --color --format pretty -f json -o results/results.json
+
+#Publish result in json format by default with publish message
+# default: --no-source --color --format pretty -f json -o results/results.json
+
+#Publish result in html format by default with publish message
+# default: --no-source --color --format pretty -f html -o results/results.html
